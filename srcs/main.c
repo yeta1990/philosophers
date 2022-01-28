@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/28 10:56:07 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/28 11:43:07 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ void	create_philos(t_data *data)
 		p = malloc(sizeof(t_philo));
 		p->id = i + 1;
 		p->current_action = 0;
+	//	p->alive = 1;
 		p->next = 0;
 		add_to_philo_list(p, data->list);
 		if (i == 0)
@@ -82,8 +83,7 @@ void	create_philos(t_data *data)
 		p = 0;
 		i++;
 	}
-	if (i > 1)
-		last->next = first;
+	last->next = first;
 }
 
 void	add_to_philo_list(t_philo *p, t_philo **list)
@@ -108,15 +108,19 @@ void	print_input_data(t_data *data)
 
 	i = 0;
 	aux = *data->list;
-	printf("Number of philosophers: %i\n", data->number_of_philosophers);
-	printf("Time to die: %i\n", data->time_to_die);
-	printf("TIme to eat: %i\n", data->time_to_eat);
-	printf("Time to sleep: %i\n", data->time_to_sleep);
-	printf("Meals per philo: %i\n\n", data->meals_per_philo);
-	printf("==== Philos at table ====\n");
+	printf("\033[1;32m==== Philosophers ====\033[0m\n");
+	printf("\033[1;37m-= Input data =-\033[0m\n");
+	printf("Number of philosophers: \033[1;33m%i\033[0m\n", data->number_of_philosophers);
+	printf("Time to die: \033[1;33m%i\033[0m\n", data->time_to_die);
+	printf("TIme to eat: \033[1;33m%i\033[0m\n", data->time_to_eat);
+	printf("Time to sleep: \033[1;33m%i\033[0m\n", data->time_to_sleep);
+	printf("Meals per philo: \033[1;33m%i\033[0m\n\n", data->meals_per_philo);
+	printf("\033[1;37m-= Philos at table =-\033[0m\n");
 	while (i < data->number_of_philosophers)
 	{
-		printf("id: %i\n", aux->id);
+		if (i != 0)
+			printf(", ");
+		printf("%i", aux->id);
 		aux = aux->next;
 		i++;
 	}
