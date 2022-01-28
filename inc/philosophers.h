@@ -6,12 +6,14 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/28 11:43:33 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/28 17:30:59 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <pthread.h>
 
 typedef struct s_data
 {
@@ -23,10 +25,21 @@ typedef struct s_data
 	struct s_philo	**list;
 }	t_data;
 
+typedef struct s_fork
+{
+	int				id;
+	int				available;
+	struct s_fork	*next;
+}	t_fork;
+
 typedef struct s_philo
 {
 	int				id;
 	int				current_action;
+	int				alive;
+	struct s_fork	*left_fork;
+	struct s_fork	*right_fork;
+	pthread_t 		thread;
 	struct s_philo	*next;
 }	t_philo;
 

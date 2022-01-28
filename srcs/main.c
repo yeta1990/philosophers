@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/28 11:43:07 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/28 12:10:19 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@ int	main(int argc, char **argv)
 	{
 		printf("Usage: ./philosophers number_of_philo time_to_die ");
 		printf("time_to_eat time_to_sleep [meals_per_philo]\n");
-		exit(0);
+		return (0);
 	}
 	data = malloc(sizeof(t_data));
 	if (fill_data(argc, argv, data) == -1)
 	{
 		printf("Wrong parameters\n");
 		free(data);
-		exit(1);
+		return (1);
 	}
 	print_input_data(data);
 	free_data(data);
@@ -73,7 +73,9 @@ void	create_philos(t_data *data)
 		p = malloc(sizeof(t_philo));
 		p->id = i + 1;
 		p->current_action = 0;
-	//	p->alive = 1;
+		p->alive = 1;
+		p->left_fork = 0;
+		p->right_fork = 0;
 		p->next = 0;
 		add_to_philo_list(p, data->list);
 		if (i == 0)
