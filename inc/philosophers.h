@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/28 17:30:59 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/29 00:30:26 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <unistd.h>
 
 typedef struct s_data
 {
@@ -23,6 +24,7 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				meals_per_philo;
 	struct s_philo	**list;
+	pthread_mutex_t mutex;
 }	t_data;
 
 typedef struct s_fork
@@ -41,6 +43,10 @@ typedef struct s_philo
 	struct s_fork	*right_fork;
 	pthread_t 		thread;
 	struct s_philo	*next;
+	int				last_meal;
+	int				num_of_meals;
+	t_data			*data;
+
 }	t_philo;
 
 int		ft_atoi(const char *str);

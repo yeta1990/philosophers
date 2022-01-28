@@ -6,11 +6,49 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/28 12:10:19 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/29 00:38:09 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+void	*routine(void *p)
+{
+	t_philo *philo;
+
+	philo = p;
+	pthread_mutex_lock(&philo->data->mutex);
+	printf("eo, i'm ID %i, my left fork is %i, right is %i\n", philo->id, philo->left_fork->id, philo->right_fork->id);
+	printf("ye");
+	usleep(10);
+
+	pthread_mutex_unlock(&philo->data->mutex);
+
+	return 0;
+}
+
+void	start_threads(t_data *data)
+{
+	int		i;
+	t_philo	*aux;
+
+	i = 0;
+	aux = *data->list;
+	while (i < data->number_of_philosophers)
+	{
+		pthread_create(&aux->thread, NULL, &routine, (void *) aux);
+		aux = aux->next;
+		i++;
+	}
+	i = 0;
+	aux = *data->list;
+	while (i < data->number_of_philosophers)
+	{
+		pthread_join(aux->thread, NULL);
+		aux = aux->next;
+		i++;
+	}
+}
 
 int	main(int argc, char **argv)
 {
@@ -29,7 +67,11 @@ int	main(int argc, char **argv)
 		free(data);
 		return (1);
 	}
+	pthread_mutex_init(&data->mutex, NULL);
 	print_input_data(data);
+	printf("\n\n");
+	start_threads(data);
+	pthread_mutex_destroy(&data->mutex);
 	free_data(data);
 }
 
@@ -62,21 +104,32 @@ void	create_philos(t_data *data)
 	t_philo *first;
 	t_philo *last;
 	t_philo *p;
+	t_fork	*f;
+	t_fork	*aux_fork;
 	int		i;
 
 	i = 0;
 	first = 0;
 	last = 0;
 	p = 0;
+	f = 0;
+	aux_fork = 0;
 	while (i < data->number_of_philosophers)
 	{
 		p = malloc(sizeof(t_philo));
+		f = malloc(sizeof(t_fork));
+		f->id = i + 1;
+		f->available = 1;
 		p->id = i + 1;
 		p->current_action = 0;
 		p->alive = 1;
-		p->left_fork = 0;
-		p->right_fork = 0;
+		p->left_fork = aux_fork;
+		p->right_fork = f;
+		aux_fork = f;
 		p->next = 0;
+		p->last_meal = 0;
+		p->num_of_meals = 0;
+		p->data = data;
 		add_to_philo_list(p, data->list);
 		if (i == 0)
 			first = p;
@@ -85,6 +138,7 @@ void	create_philos(t_data *data)
 		p = 0;
 		i++;
 	}
+	first->left_fork = aux_fork;
 	last->next = first;
 }
 

@@ -13,10 +13,10 @@ NAME	= philosophers
 RM		= rm -f
 
 %.o:%.c
-			$(CC) $(CFLAGS) -c $< -o $(<:.c=.o) -I$(INCS) 
+			$(CC) $(CFLAGS) -c $< -o $(<:.c=.o) -I$(INCS)
 
 $(NAME):	$(OBJS) 
-			$(CC) $(CFLAGS) $(OBJS) -I$(INCS) -o $(NAME)
+			$(CC) $(CFLAGS) $(OBJS) -I$(INCS) -o $(NAME) -lpthread
 
 all:		$(NAME)
 
