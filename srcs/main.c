@@ -6,24 +6,84 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/29 00:38:09 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/29 20:12:26 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
+float time_diff(struct timeval *start, struct timeval *end)
+{
+    return (end->tv_sec - start->tv_sec) + 1e-3 * (end->tv_usec - start->tv_usec);
+}
+
 void	*routine(void *p)
 {
 	t_philo *philo;
+	struct timeval	end;
+	int		forks;
 
+	forks = 0;
 	philo = p;
-	pthread_mutex_lock(&philo->data->mutex);
-	printf("eo, i'm ID %i, my left fork is %i, right is %i\n", philo->id, philo->left_fork->id, philo->right_fork->id);
-	printf("ye");
-	usleep(10);
+	while (forks < 2)
+	{
+	//	printf("forks: %i\n", forks);
+	
+		if (philo->left_fork->available && philo->right_fork->available && forks == 0)
+		{
+			pthread_mutex_lock(&philo->data->mutex);
+			forks +=2;
+			philo->left_fork->available = 0;
+			philo->right_fork->available = 0;
+			gettimeofday(&end, NULL);
+			printf("[%i] - ID %i, i've taken the left fork %i\n", (int) time_diff(&philo->data->start, &end), philo->id, philo->left_fork->id);
+			printf("[%i] - ID %i, i've taken the right fork %i\n", (int) time_diff(&philo->data->start, &end), philo->id, philo->right_fork->id);
+			pthread_mutex_unlock(&philo->data->mutex);
+		}
+		else if (philo->left_fork->available)
+		{
+			pthread_mutex_lock(&philo->data->mutex);
+			forks++;
+			philo->left_fork->available = 0;
+			gettimeofday(&end, NULL);
+			printf("[%i] - ID %i, i've taken the left fork %i\n", (int) time_diff(&philo->data->start, &end), philo->id, philo->left_fork->id);
+			pthread_mutex_unlock(&philo->data->mutex);
+		}
+		else if (philo->right_fork->available)
+		{
+			pthread_mutex_lock(&philo->data->mutex);
+			forks++;
+			philo->right_fork->available = 0;
+			gettimeofday(&end, NULL);
+			printf("[%i] - ID %i, i've taken the right fork %i\n", (int) time_diff(&philo->data->start, &end), philo->id, philo->right_fork->id);
+			pthread_mutex_unlock(&philo->data->mutex);
+		}
+		if (forks == 2)
+		{
+			printf("[%i] - ID %i, eating\n", (int) time_diff(&philo->data->start, &end), philo->id);
+			usleep(philo->data->time_to_eat * 100);
+			philo->left_fork->available = 1;
+			philo->right_fork->available = 1;
+			break ;
+		}
 
+	}
+/*	pthread_mutex_lock(&philo->data->mutex);
+	gettimeofday(&end, NULL);
+	printf("[%i] - ID %i, i've taken the right fork %i\n", (int) time_diff(&philo->data->start, &end), philo->id, philo->right_fork->id);
+	gettimeofday(&end, NULL);
+	printf("[%i] - ID %i, eating\n", (int) time_diff(&philo->data->start, &end), philo->id);
+
+	usleep(philo->data->time_to_eat * 100);
 	pthread_mutex_unlock(&philo->data->mutex);
 
+	gettimeofday(&end, NULL);
+	printf("[%i] - ID %i, sleeping\n", (int) time_diff(&philo->data->start, &end), philo->id);
+
+	usleep(philo->data->time_to_sleep * 100);
+
+	gettimeofday(&end, NULL);
+	printf("[%i] - ID %i, thinking\n", (int) time_diff(&philo->data->start, &end), philo->id);*/
 	return 0;
 }
 
@@ -50,9 +110,13 @@ void	start_threads(t_data *data)
 	}
 }
 
+
 int	main(int argc, char **argv)
 {
 	t_data	*data;
+//	struct timeval	start;
+
+
 
 	if (argc < 5 || argc > 6)
 	{
@@ -67,11 +131,14 @@ int	main(int argc, char **argv)
 		free(data);
 		return (1);
 	}
+	gettimeofday(&data->start, NULL);
 	pthread_mutex_init(&data->mutex, NULL);
 	print_input_data(data);
 	printf("\n\n");
 	start_threads(data);
 	pthread_mutex_destroy(&data->mutex);
+
+
 	free_data(data);
 }
 

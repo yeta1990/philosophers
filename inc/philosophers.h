@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/29 00:30:26 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/29 19:37:42 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ typedef struct s_data
 	int				meals_per_philo;
 	struct s_philo	**list;
 	pthread_mutex_t mutex;
+	struct timeval	start;
 }	t_data;
 
 typedef struct s_fork
