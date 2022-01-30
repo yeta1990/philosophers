@@ -1,4 +1,5 @@
-SRCS	= srcs/main.c srcs/ft_atoi.c srcs/freezers.c
+SRCS	= srcs/main.c srcs/ft_atoi.c srcs/freezers.c \
+		  srcs/time_utils.c
 
 INCS	= inc/ 
 

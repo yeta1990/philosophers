@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/30 17:06:54 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/30 19:45:17 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef PHILOSOPHERS_H
@@ -30,6 +30,8 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				meals_per_philo;
+	int				total_meals;
+	int				any_death;
 	struct s_philo	**list;
 	pthread_mutex_t mutex;
 	struct timeval	start;
@@ -56,6 +58,7 @@ typedef struct s_philo
 	int				num_of_meals;
 	t_data			*data;
 	struct timeval	start_time;
+	struct timeval	last_meal_timestamp;
 	pthread_mutex_t	philo_lock;
 }	t_philo;
 
@@ -64,9 +67,15 @@ int		fill_data(int argc, char **argv, t_data *data);
 void	print_input_data(t_data *data);
 void	create_philos(t_data *data);
 void	add_to_philo_list(t_philo *p, t_philo **list);
+void	check_starving(t_philo *p);
 
 //freezers.c
 void	free_data(t_data *d);
 void	free_philos(int num_of_philos, t_philo **list);
+
+//time_utils.c
+int		timestamp_to_ms(struct timeval *tstamp);
+void	replicate_usleep(int target_time, int time_corrector, t_philo *p);
+int		elapsed_time(struct timeval *start);
 
 #endif
