@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/29 19:37:42 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/29 23:13:34 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_data
 
 typedef struct s_fork
 {
+	pthread_mutex_t	m;
 	int				id;
 	int				available;
 	struct s_fork	*next;
