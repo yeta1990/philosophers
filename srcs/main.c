@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/30 17:20:15 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/30 17:29:37 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	timestamp_to_ms(struct timeval *tstamp)
 	return (tstamp->tv_sec * 1000 + tstamp->tv_usec / 1000);
 }
 
-void	replicate_usleep(int target_time)
+void	replicate_usleep(int target_time, int time_corrector)
 {
 	struct timeval	timestamp;
 	int				finish;
@@ -31,7 +31,7 @@ void	replicate_usleep(int target_time)
 	while (timestamp_to_ms(&timestamp) < finish)
 	{
 		gettimeofday(&timestamp, NULL);
-		usleep(5);
+		usleep(time_corrector);
 	}
 }
 
@@ -46,11 +46,7 @@ int	elapsed_time(struct timeval *start)
 void	*routine(void *p)
 {
 	t_philo *philo;
-	int		final;
-	int		forks;
 
-	final = 0;
-	forks = 0;
 	philo = p;
 	gettimeofday(&philo->start_time, NULL);
 	pthread_mutex_lock(&philo->philo_lock);
@@ -70,12 +66,12 @@ void	*routine(void *p)
 		printf("[%i] - ID %i, i've taken the left fork %i\n", elapsed_time(&philo->start_time), philo->id, philo->left_fork->id);
 	}
 	printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
-	replicate_usleep(philo->data->time_to_eat);
+	replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers);
 	pthread_mutex_unlock(&philo->left_fork->m);
 	pthread_mutex_unlock(&philo->right_fork->m);
 	pthread_mutex_unlock(&philo->philo_lock);
 	printf("[%i] - ID %i, sleeping\n", elapsed_time(&philo->start_time), philo->id);
-	replicate_usleep(philo->data->time_to_sleep);
+	replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers);
 	printf("[%i] - ID %i, thinking\n", elapsed_time(&philo->start_time), philo->id);
 
 	return 0;
