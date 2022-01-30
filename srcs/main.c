@@ -6,92 +6,77 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/30 13:42:15 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/30 17:20:15 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int	replicate_usleep(int target_time)
-{
-	struct timeval	start;
-	struct timeval	end;
+long time_diff(struct timeval *start, struct timeval *end);
 
-	end.tv_usec = 0;
-	end.tv_sec = 0;
-	start.tv_usec = 0;
-	start.tv_sec = 0;
-	gettimeofday(&start, NULL);
-	while (end.tv_usec - start.tv_usec < target_time)
-	{
-		usleep(10);
-		gettimeofday(&end, NULL);
-	}
-	return (target_time);
+int	timestamp_to_ms(struct timeval *tstamp)
+{
+	return (tstamp->tv_sec * 1000 + tstamp->tv_usec / 1000);
 }
 
-long time_diff(struct timeval *start, struct timeval *end)
+void	replicate_usleep(int target_time)
 {
-	return (end->tv_usec - start->tv_usec) / 1000.0;
+	struct timeval	timestamp;
+	int				finish;
+
+	timestamp.tv_usec = 0;
+	timestamp.tv_sec = 0;
+	gettimeofday(&timestamp, NULL);
+	finish = timestamp_to_ms(&timestamp) + target_time;
+	while (timestamp_to_ms(&timestamp) < finish)
+	{
+		gettimeofday(&timestamp, NULL);
+		usleep(5);
+	}
+}
+
+int	elapsed_time(struct timeval *start)
+{
+	struct timeval	end;
+
+	gettimeofday(&end, NULL);
+	return (timestamp_to_ms(&end) - timestamp_to_ms(start));
 }
 
 void	*routine(void *p)
 {
 	t_philo *philo;
-	struct timeval	start;
-	struct timeval	end;
 	int		final;
 	int		forks;
 
-	start.tv_usec = 0;
-	start.tv_sec = 0;
-	end.tv_usec = 0;
-	end.tv_sec = 0;
 	final = 0;
-	gettimeofday(&start, NULL);
 	forks = 0;
 	philo = p;
-
+	gettimeofday(&philo->start_time, NULL);
+	pthread_mutex_lock(&philo->philo_lock);
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo->left_fork->m);
-		gettimeofday(&end, NULL);
-		printf("[%li] - ID %i, i've taken the left fork %i\n", time_diff(&start, &end), philo->id, philo->left_fork->id);
+		printf("[%i] - ID %i, i've taken the left fork %i\n", elapsed_time(&philo->start_time), philo->id, philo->left_fork->id);
 		pthread_mutex_lock(&philo->right_fork->m);
-		gettimeofday(&end, NULL);
-		printf("[%li] - ID %i, i've taken the right fork %i\n", time_diff(&start, &end), philo->id, philo->right_fork->id);
-		printf("[%li] - ID %i, eating\n", time_diff(&start, &end), philo->id);
-		replicate_usleep(philo->data->time_to_eat * 1000);
-	//	usleep(philo->data->time_to_eat * 1000);
-		pthread_mutex_unlock(&philo->left_fork->m);
-		pthread_mutex_unlock(&philo->right_fork->m);
+		printf("[%i] - ID %i, i've taken the right fork %i\n",	elapsed_time(&philo->start_time), philo->id, philo->right_fork->id);
+
 	}
 	else
 	{
 		pthread_mutex_lock(&philo->right_fork->m);
-		gettimeofday(&end, NULL);
-		printf("[%li] - ID %i, i've taken the right fork %i\n", time_diff(&start, &end), philo->id, philo->right_fork->id);
-
+		printf("[%i] - ID %i, i've taken the right fork %i\n", elapsed_time(&philo->start_time), philo->id, philo->right_fork->id);
 		pthread_mutex_lock(&philo->left_fork->m);
-
-		gettimeofday(&end, NULL);
-		printf("[%li] - ID %i, i've taken the left fork %i\n", time_diff(&start, &end), philo->id, philo->left_fork->id);
-		printf("[%li] - ID %i, eating\n", time_diff(&start, &end), philo->id);
-		final += replicate_usleep(philo->data->time_to_eat * 1000);
-//		usleep(philo->data->time_to_eat * 1000);
-		
-		pthread_mutex_unlock(&philo->right_fork->m);
-		pthread_mutex_unlock(&philo->left_fork->m);
+		printf("[%i] - ID %i, i've taken the left fork %i\n", elapsed_time(&philo->start_time), philo->id, philo->left_fork->id);
 	}
-	gettimeofday(&end, NULL);
-
-	printf("[%li] - ID %i, sleeping\n", time_diff(&start, &end), philo->id);
-
-	replicate_usleep(philo->data->time_to_sleep * 1000);
-//	usleep(philo->data->time_to_sleep * 1000);
-
-	gettimeofday(&end, NULL);
-	printf("[%li] - ID %i, thinking\n", time_diff(&start, &end), philo->id);
+	printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
+	replicate_usleep(philo->data->time_to_eat);
+	pthread_mutex_unlock(&philo->left_fork->m);
+	pthread_mutex_unlock(&philo->right_fork->m);
+	pthread_mutex_unlock(&philo->philo_lock);
+	printf("[%i] - ID %i, sleeping\n", elapsed_time(&philo->start_time), philo->id);
+	replicate_usleep(philo->data->time_to_sleep);
+	printf("[%i] - ID %i, thinking\n", elapsed_time(&philo->start_time), philo->id);
 
 	return 0;
 }
@@ -103,6 +88,7 @@ void	start_threads(t_data *data)
 
 	i = 0;
 	aux = *data->list;
+	gettimeofday(&data->start, NULL);
 	while (i < data->number_of_philosophers)
 	{
 		pthread_create(&aux->thread, NULL, &routine, (void *) aux);
@@ -128,6 +114,7 @@ void	init_all_mutex(t_data *data)
 	while (i < data->number_of_philosophers)
 	{
 		pthread_mutex_init(&p->right_fork->m, NULL);
+		pthread_mutex_init(&p->philo_lock, NULL);
 		p = p->next;
 		i++;
 	}
@@ -143,6 +130,7 @@ void	destroy_all_mutex(t_data *data)
 	while (i < data->number_of_philosophers)
 	{
 		pthread_mutex_destroy(&p->right_fork->m);
+		pthread_mutex_destroy(&p->philo_lock);
 		p = p->next;
 		i++;
 	}
@@ -165,7 +153,7 @@ int	main(int argc, char **argv)
 		free(data);
 		return (1);
 	}
-//	gettimeofday(&data->start, NULL);
+
 //	pthread_mutex_init(&data->mutex, NULL);
 	print_input_data(data);
 	init_all_mutex(data);

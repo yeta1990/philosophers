@@ -6,15 +6,22 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/29 23:13:34 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/30 17:06:54 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#ifndef PHILOSOPHERS_H
+# define PHILOSOPHERS_H
+# include <stdio.h>
+# include <stdlib.h>
+# include <sys/time.h>
+# include <pthread.h>
+# include <unistd.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <pthread.h>
-#include <unistd.h>
+typedef struct s_time_val_64
+{
+	uint64_t	tv_usec;
+	uint64_t	tv_sec;
+}	t_time_val_64;
 
 typedef struct s_data
 {
@@ -48,7 +55,8 @@ typedef struct s_philo
 	int				last_meal;
 	int				num_of_meals;
 	t_data			*data;
-
+	struct timeval	start_time;
+	pthread_mutex_t	philo_lock;
 }	t_philo;
 
 int		ft_atoi(const char *str);
@@ -60,3 +68,5 @@ void	add_to_philo_list(t_philo *p, t_philo **list);
 //freezers.c
 void	free_data(t_data *d);
 void	free_philos(int num_of_philos, t_philo **list);
+
+#endif
