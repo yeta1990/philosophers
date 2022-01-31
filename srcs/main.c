@@ -6,19 +6,52 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 16:36:31 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 17:21:36 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+void	check_starving(t_philo *philo)
+{
+	t_philo	*p;
+	int		i;
+	int		meals_per_philo;
 
+	i = 0;
+	p = philo;
+	meals_per_philo = philo->data->meals_per_philo;
+	while (p->data->any_death == 0 && p->data->satisfied_guests == 0)
+	{
+		pthread_mutex_lock(&philo->data->mutex);
+		if (p->data->any_death == 0 && p->am_i_dead == 0 && elapsed_time(&p->last_meal_timestamp) > p->data->time_to_die)
+		{
+			p->am_i_dead = 1;
+			p->data->any_death = philo->id;
+			printf("[%i] - ID %i is dead. %i ms since last meal\n", elapsed_time(&p->start_time), p->id, elapsed_time(&p->last_meal_timestamp));
+		}
+		if (meals_per_philo != -1)// && j == philo->data->number_of_philosophers)
+		{
+			if (p->total_meals >= meals_per_philo)
+				i++;
+			else
+				i = 0;
+			if (i >= p->data->number_of_philosophers)
+			{
+				p->data->satisfied_guests = 1;
+				p->data->any_death = 1;
+			}
+		}
+		pthread_mutex_unlock(&philo->data->mutex);
+		p = p->next;
+	}
+}
+
+/*
 void	check_starving(t_philo *philo)
 {
 	t_philo	*p;
 
 	p = philo;
-	int	i = 0;
-
 	while (p->data->any_death == 0)
 	{
 		pthread_mutex_lock(&philo->data->mutex);
@@ -30,9 +63,8 @@ void	check_starving(t_philo *philo)
 		}
 		pthread_mutex_unlock(&philo->data->mutex);
 		p = p->next;
-		i++;
 	}
-}
+}*/
 
 void	left_handed_routine(t_philo *philo)
 {
@@ -73,8 +105,8 @@ void	*routine(void *p)
 		{
 			printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
 			gettimeofday(&philo->last_meal_timestamp, NULL);
+			philo->total_meals++;
 		}
-		philo->num_of_meals++;
 		if (philo->data->any_death == 0)
 			replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers, philo);
 		pthread_mutex_unlock(&philo->left_fork->m);
@@ -170,14 +202,9 @@ int	main(int argc, char **argv)
 	print_input_data(data);
 	init_all_mutex(data);
 	printf("\n\n");
-
 	start_threads(data);
-
 	destroy_all_mutex(data);
-
 	pthread_mutex_destroy(&data->mutex);
-	printf("num of meals: %i\n", data->total_meals);
-
 	free_data(data);
 }
 
@@ -197,8 +224,8 @@ int	fill_data(int argc, char **argv, t_data *data)
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
 	data->meals_per_philo = -1;
-	data->total_meals = 0;
 	data->any_death = 0;
+	data->satisfied_guests = 0;
 	data->list = malloc(sizeof(t_philo *));
 	*data->list = 0;
 	create_philos(data);
@@ -236,7 +263,7 @@ void	create_philos(t_data *data)
 		aux_fork = f;
 		p->next = 0;
 		p->last_meal = 0;
-		p->num_of_meals = 0;
+		p->total_meals = 0;
 		p->last_meal_timestamp.tv_sec = 0;
 		p->last_meal_timestamp.tv_usec = 0;
 		p->am_i_dead = 0;
