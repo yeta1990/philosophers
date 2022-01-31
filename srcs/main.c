@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 17:21:36 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 17:33:21 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,26 +46,6 @@ void	check_starving(t_philo *philo)
 	}
 }
 
-/*
-void	check_starving(t_philo *philo)
-{
-	t_philo	*p;
-
-	p = philo;
-	while (p->data->any_death == 0)
-	{
-		pthread_mutex_lock(&philo->data->mutex);
-		if (p->data->any_death == 0 && p->am_i_dead == 0 && elapsed_time(&p->last_meal_timestamp) > p->data->time_to_die)
-		{
-			p->am_i_dead = 1;
-			p->data->any_death = philo->id;
-			printf("[%i] - ID %i is dead. %i ms since last meal\n", elapsed_time(&p->start_time), p->id, elapsed_time(&p->last_meal_timestamp));
-		}
-		pthread_mutex_unlock(&philo->data->mutex);
-		p = p->next;
-	}
-}*/
-
 void	left_handed_routine(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->left_fork->m);
@@ -81,9 +61,12 @@ void	right_handed_routine(t_philo *philo)
 	pthread_mutex_lock(&philo->right_fork->m);
 	if (philo->data->any_death == 0)
 		printf("[%i] - ID %i, i've taken the right fork\n", elapsed_time(&philo->start_time), philo->id);
-	pthread_mutex_lock(&philo->left_fork->m);
-	if (philo->data->any_death == 0)
-		printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
+	if (philo->data->number_of_philosophers > 1)
+	{
+		pthread_mutex_lock(&philo->left_fork->m);
+		if (philo->data->any_death == 0)
+			printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
+	}
 }
 
 void	*routine(void *p)
@@ -101,6 +84,12 @@ void	*routine(void *p)
 			left_handed_routine(philo);
 		else
 			right_handed_routine(philo);
+		if (philo->data->number_of_philosophers == 1)
+		{
+			pthread_mutex_unlock(&philo->right_fork->m);
+			pthread_mutex_unlock(&philo->philo_lock);
+			break ;
+		}
 		if (philo->data->any_death == 0)
 		{
 			printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
@@ -119,7 +108,6 @@ void	*routine(void *p)
 		if (philo->data->any_death == 0)
 			printf("[%i] - ID %i, thinking\n", elapsed_time(&philo->start_time), philo->id);
 	}
-
 	return 0;
 }
 
