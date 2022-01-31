@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 18:06:38 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:39:03 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,22 @@ int	main(int argc, char **argv)
 	free_data(data);
 }
 
+void	waiter(t_philo *p, int meals_per_philo, int *i)
+{
+	if (meals_per_philo != -1)
+	{
+		if (p->total_meals >= meals_per_philo)
+			(*i)++;
+		else
+			*i = 0;
+		if (*i >= p->data->num_philos)
+		{
+			p->data->satisfied_guests = 1;
+			p->data->any_death = 1;
+		}
+	}
+}
+
 void	check_starving(t_philo *philo)
 {
 	t_philo	*p;
@@ -49,37 +65,27 @@ void	check_starving(t_philo *philo)
 	while (p->data->any_death == 0 && p->data->satisfied_guests == 0)
 	{
 		pthread_mutex_lock(&philo->data->mutex);
-		if (p->data->any_death == 0 && p->am_i_dead == 0 && elapsed_time(&p->last_meal_timestamp) > p->data->time_to_die)
+		if (p->data->any_death == 0 && p->am_i_dead == 0
+			&& elapsed_time(&p->last_meal_timestamp) > p->data->time_to_die)
 		{
 			p->am_i_dead = 1;
 			p->data->any_death = philo->id;
-			printf("[%i] - ID %i is dead. %i ms since last meal\n", elapsed_time(&p->start_time), p->id, elapsed_time(&p->last_meal_timestamp));
+			printf("[%i] - ID %i is dead. %i ms since last meal\n",
+				elapsed_time(&p->start_time), p->id,
+				elapsed_time(&p->last_meal_timestamp));
 		}
-		if (meals_per_philo != -1)
-		{
-			if (p->total_meals >= meals_per_philo)
-				i++;
-			else
-				i = 0;
-			if (i >= p->data->num_philos)
-			{
-				p->data->satisfied_guests = 1;
-				p->data->any_death = 1;
-			}
-		}
+		waiter(p, meals_per_philo, &i);
 		pthread_mutex_unlock(&philo->data->mutex);
 		p = p->next;
 	}
 }
-
-
 
 int	fill_data(int argc, char **argv, t_data *data)
 {
 	int	i;
 
 	i = 1;
-	while(i < argc)
+	while (i < argc)
 	{
 		if (ft_atoi(argv[i]) < 1)
 			return (-1);

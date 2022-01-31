@@ -6,15 +6,15 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 18:05:02 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 18:05:28 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:12:25 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-t_philo *fill_fields(int i, t_fork **aux_fork, t_data *data)
+t_philo	*fill_fields(int i, t_fork **aux_fork, t_data *data)
 {
-	t_philo *p;
+	t_philo	*p;
 	t_fork	*f;
 
 	p = malloc(sizeof(t_philo));
@@ -52,7 +52,7 @@ void	create_philos(t_data *data)
 	aux_fork = 0;
 	while (i < data->num_philos)
 	{
-		p =	fill_fields(i, &aux_fork, data);
+		p = fill_fields(i, &aux_fork, data);
 		add_to_philo_list(p, data->list);
 		if (i == 0)
 			first = p;

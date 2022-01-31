@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:44:04 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 17:41:44 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:38:25 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	free_data(t_data *d)
 
 void	free_philos(int num_of_philos, t_philo **list)
 {
-	t_philo *aux;
+	t_philo	*aux;
 	t_philo	*next;
 	int		i;
 

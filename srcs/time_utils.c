@@ -6,12 +6,11 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/30 18:46:35 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 16:13:10 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:12:44 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
-
 
 int	timestamp_to_ms(struct timeval *tstamp)
 {

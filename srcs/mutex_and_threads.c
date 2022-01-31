@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 17:38:33 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 17:39:01 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:39:17 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void	start_threads(t_data *data)
 		i++;
 	}
 }
+
 void	init_all_mutex(t_data *data)
 {
 	t_philo	*p;
