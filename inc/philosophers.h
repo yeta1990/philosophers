@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 17:06:40 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 17:40:57 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef PHILOSOPHERS_H
@@ -25,7 +25,7 @@ typedef struct s_time_val_64
 
 typedef struct s_data
 {
-	int				number_of_philosophers;
+	int				num_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
@@ -74,9 +74,14 @@ void	check_starving(t_philo *p);
 void	free_data(t_data *d);
 void	free_philos(int num_of_philos, t_philo **list);
 
+void	*routine(void *p);
+
 //time_utils.c
 int		timestamp_to_ms(struct timeval *tstamp);
 void	replicate_usleep(int target_time, int time_corrector, t_philo *p);
 int		elapsed_time(struct timeval *start);
+void	init_all_mutex(t_data *data);
+void	destroy_all_mutex(t_data *data);
+void	start_threads(t_data *data);
 
 #endif

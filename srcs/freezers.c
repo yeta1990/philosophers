@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:44:04 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/30 17:58:29 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 17:41:44 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	free_data(t_data *d)
 {
-	free_philos(d->number_of_philosophers, d->list);
+	free_philos(d->num_philos, d->list);
 	free(d);
 }
 

@@ -1,5 +1,6 @@
 SRCS	= srcs/main.c srcs/ft_atoi.c srcs/freezers.c \
-		  srcs/time_utils.c
+		  srcs/time_utils.c srcs/mutex_and_threads.c \
+		  srcs/routines.c srcs/create_philos.c
 
 INCS	= inc/ 
 
