@@ -6,87 +6,85 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/30 19:47:25 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 13:32:44 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-void	check_starving(t_philo *p)
+void	check_starving(t_philo *philo)
 {
-	pthread_mutex_lock(&p->data->mutex);
-	if (p->data->any_death == 0 && elapsed_time(&p->last_meal_timestamp) >= p->data->time_to_die)
+	t_philo	*p;
+
+	p = philo;
+
+
+	while (p->data->any_death == 0)
 	{
-		p->data->any_death = p->id;
-		printf("time of death: %i\n", elapsed_time(&p->start_time));
+
+		pthread_mutex_lock(&philo->data->mutex);
+		if (p->data->any_death == 0 && p->am_i_dead == 0 && elapsed_time(&p->last_meal_timestamp) > p->data->time_to_die)
+		{
+			p->am_i_dead = 1;
+			p->data->any_death = philo->id;
+			printf("[%i] - ID %i is dead. %i ms since last meal\n", elapsed_time(&p->start_time), p->id, elapsed_time(&p->last_meal_timestamp));
+			pthread_detach(p->thread);
+		}
+		pthread_mutex_unlock(&philo->data->mutex);
+		p = p->next;
 	}
-	pthread_mutex_unlock(&p->data->mutex);
+}
+
+void	left_handed_routine(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->left_fork->m);
+	if (philo->data->any_death == 0)
+		printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
+	pthread_mutex_lock(&philo->right_fork->m);
+	if (philo->data->any_death == 0)
+		printf("[%i] - ID %i, i've taken the right fork\n",	elapsed_time(&philo->start_time), philo->id);
+}
+
+void	right_handed_routine(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->right_fork->m);
+	if (philo->data->any_death == 0)
+		printf("[%i] - ID %i, i've taken the right fork\n", elapsed_time(&philo->start_time), philo->id);
+	pthread_mutex_lock(&philo->left_fork->m);
+	if (philo->data->any_death == 0)
+		printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
 }
 
 void	*routine(void *p)
 {
 	t_philo *philo;
-	struct	timeval	last_meal;
+
 	philo = p;
+	pthread_mutex_lock(&philo->philo_lock);
 	gettimeofday(&philo->start_time, NULL);
 	gettimeofday(&philo->last_meal_timestamp, NULL);
-	while (philo->data->any_death == 0)
+	while (philo->am_i_dead == 0 && philo->data->any_death == 0)
 	{
-	pthread_mutex_lock(&philo->philo_lock);
-	if (philo->id % 2 == 0)
-	{
-
-		check_starving(philo);
-		pthread_mutex_lock(&philo->left_fork->m);
-
-		check_starving(philo);
-		if (philo->data->any_death == 0)
-			printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
+		if (philo->id % 2 == 0)
+			left_handed_routine(philo);
 		else
-			break ;
-		check_starving(philo);
-		pthread_mutex_lock(&philo->right_fork->m);
-
-		check_starving(philo);
+			right_handed_routine(philo);
+		gettimeofday(&philo->last_meal_timestamp, NULL);
 		if (philo->data->any_death == 0)
-			printf("[%i] - ID %i, i've taken the right fork\n",	elapsed_time(&philo->start_time), philo->id);
-		else
-			break ;
+			printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
+		philo->num_of_meals++;
+		if (philo->data->any_death == 0)
+			replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers, philo, 1);
+		pthread_mutex_unlock(&philo->left_fork->m);
+		pthread_mutex_unlock(&philo->right_fork->m);
+		if (philo->data->any_death == 0)
+			printf("[%i] - ID %i, sleeping\n", elapsed_time(&philo->start_time), philo->id);
+		if (philo->data->any_death == 0)
+			replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers, philo, 1);
+		if (philo->data->any_death == 0)
+			printf("[%i] - ID %i, thinking\n", elapsed_time(&philo->start_time), philo->id);
 	}
-	else
-	{
-		check_starving(philo);
-		pthread_mutex_lock(&philo->right_fork->m);
-		check_starving(philo);
-		if (philo->data->any_death == 0)
-			printf("[%i] - ID %i, i've taken the right fork\n", elapsed_time(&philo->start_time), philo->id);
-		else
-			break ;
-		pthread_mutex_lock(&philo->left_fork->m);
-		check_starving(philo);
-		if (philo->data->any_death == 0)
-			printf("[%i] - ID %i, i've taken the left fork\n", elapsed_time(&philo->start_time), philo->id);
-		else
-			break ;
-	}
-
-	check_starving(philo);
-	if (philo->data->any_death == 0)
-		printf("[%i] - ID %i, eating\n", elapsed_time(&philo->start_time), philo->id);
-	gettimeofday(&last_meal, NULL);
-	philo->last_meal = timestamp_to_ms(&last_meal);
-	replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers, philo);
-	pthread_mutex_unlock(&philo->left_fork->m);
-	pthread_mutex_unlock(&philo->right_fork->m);
 	pthread_mutex_unlock(&philo->philo_lock);
-	check_starving(philo);
-	if (philo->data->any_death == 0)
-		printf("[%i] - ID %i, sleeping\n", elapsed_time(&philo->start_time), philo->id);
-	replicate_usleep(philo->data->time_to_eat, philo->data->number_of_philosophers, philo);
-	check_starving(philo);
-	if (philo->data->any_death == 0)
-		printf("[%i] - ID %i, thinking\n", elapsed_time(&philo->start_time), philo->id);
-	}
 	return 0;
 }
 
@@ -106,6 +104,8 @@ void	start_threads(t_data *data)
 	}
 	i = 0;
 	aux = *data->list;
+	while (data->any_death == 0)
+		check_starving(*data->list);
 	while (i < data->number_of_philosophers)
 	{
 		pthread_join(aux->thread, NULL);
@@ -167,7 +167,10 @@ int	main(int argc, char **argv)
 	print_input_data(data);
 	init_all_mutex(data);
 	printf("\n\n");
+
+
 	start_threads(data);
+
 	destroy_all_mutex(data);
 
 	pthread_mutex_destroy(&data->mutex);
@@ -233,6 +236,9 @@ void	create_philos(t_data *data)
 		p->next = 0;
 		p->last_meal = 0;
 		p->num_of_meals = 0;
+		p->last_meal_timestamp.tv_sec = 0;
+		p->last_meal_timestamp.tv_usec = 0;
+		p->am_i_dead = 0;
 		p->data = data;
 		add_to_philo_list(p, data->list);
 		if (i == 0)

@@ -18,3 +18,8 @@ cada acción que consigue hacer, la registra. acción x, milisegundo y
 
 Duda: cada acción que consiguen en cada milisegundo la registran o la imprimen directamente?
 
+
+
+si un filósofo no empieza a comer “time_to_die”
+milisegundos después de su última comida (o el principio de la simulación),
+muere.
