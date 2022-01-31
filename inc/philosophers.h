@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 13:27:57 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 16:15:25 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef PHILOSOPHERS_H
@@ -76,7 +76,7 @@ void	free_philos(int num_of_philos, t_philo **list);
 
 //time_utils.c
 int		timestamp_to_ms(struct timeval *tstamp);
-void	replicate_usleep(int target_time, int time_corrector, t_philo *p, int type);
+void	replicate_usleep(int target_time, int time_corrector, t_philo *p);
 int		elapsed_time(struct timeval *start);
 
 #endif

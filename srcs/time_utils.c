@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/30 18:46:35 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 13:19:37 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 16:13:10 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ int	timestamp_to_ms(struct timeval *tstamp)
 	return (tstamp->tv_sec * 1000 + tstamp->tv_usec / 1000);
 }
 
-void	replicate_usleep(int target_time, int time_corrector, t_philo *p, int type)
+void	replicate_usleep(int target_time, int time_corrector, t_philo *p)
 {
 	struct timeval	timestamp;
 	int				finish;
@@ -31,12 +31,7 @@ void	replicate_usleep(int target_time, int time_corrector, t_philo *p, int type)
 	{
 		gettimeofday(&timestamp, NULL);
 		usleep(time_corrector);
-		if (type == 1)
-			;
-		//	check_starving(p);
 	}
-	p->last_meal_timestamp.tv_usec = timestamp.tv_usec;
-	p->last_meal_timestamp.tv_sec = timestamp.tv_sec;
 	p->last_meal = timestamp_to_ms(&timestamp);
 }
 
