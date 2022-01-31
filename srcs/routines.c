@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 17:42:30 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 18:09:22 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:57:55 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,11 @@ void	eat_eat(t_philo *philo)
 		gettimeofday(&philo->last_meal_timestamp, NULL);
 	}
 	if (philo->data->any_death == 0)
+	{
+		philo->total_meals++;
 		replicate_usleep(philo->data->time_to_eat, philo->data->num_philos,
 			philo);
-	philo->total_meals++;
+	}
 	pthread_mutex_unlock(&philo->left_fork->m);
 	pthread_mutex_unlock(&philo->right_fork->m);
 	pthread_mutex_unlock(&philo->philo_lock);
