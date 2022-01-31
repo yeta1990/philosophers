@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:02:57 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 17:40:57 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:49:52 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef PHILOSOPHERS_H
@@ -33,7 +33,7 @@ typedef struct s_data
 	int				satisfied_guests;
 	int				any_death;
 	struct s_philo	**list;
-	pthread_mutex_t mutex;
+	pthread_mutex_t	mutex;
 	struct timeval	start;
 }	t_data;
 
@@ -52,7 +52,7 @@ typedef struct s_philo
 	int				alive;
 	struct s_fork	*left_fork;
 	struct s_fork	*right_fork;
-	pthread_t 		thread;
+	pthread_t		thread;
 	struct s_philo	*next;
 	int				last_meal;
 	int				total_meals;

@@ -6,7 +6,7 @@
 /*   By: albgarci <albgarci@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/28 10:05:25 by albgarci          #+#    #+#             */
-/*   Updated: 2022/01/31 18:39:03 by albgarci         ###   ########.fr       */
+/*   Updated: 2022/01/31 18:44:27 by albgarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,7 @@ void	check_starving(t_philo *philo)
 		{
 			p->am_i_dead = 1;
 			p->data->any_death = philo->id;
-			printf("[%i] - ID %i is dead. %i ms since last meal\n",
-				elapsed_time(&p->start_time), p->id,
-				elapsed_time(&p->last_meal_timestamp));
+			printf("%i %i died\n", elapsed_time(&p->start_time), p->id);
 		}
 		waiter(p, meals_per_philo, &i);
 		pthread_mutex_unlock(&philo->data->mutex);
