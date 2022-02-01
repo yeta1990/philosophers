@@ -8,9 +8,9 @@ CC		= gcc
 
 OBJS	= $(SRCS:.c=.o)
 
-CFLAGS	= -Wall -Wextra -Werror -g
+CFLAGS	= -Wall -Wextra -Werror
 
-NAME	= philosophers
+NAME	= philo
 
 RM		= rm -f
 
@@ -29,8 +29,5 @@ fclean:		clean
 			$(RM) $(NAME)
 
 re:			fclean all
-
-san:		$(OBJS)
-			$(CC) $(CFLAGS) $(OBJS) -I$(INCS) -o $(NAME) -g0 -O -fsanitize=address 
 
 .PHONY:		all clean fclean re
